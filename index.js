@@ -29,9 +29,9 @@ io.on('connection', function(socket, opts){
     if(roomList.indexOf(data.room) != -1)
     {
       socket.join(data.room);
-      clientList[data.user] = socket.id;
+      clientList[data.user] = {socket: socket.id, name: data.user, avatar: data.avatar, score: 0};
       console.log("User "+data.user+" joined room "+data.room);
-      io.to(data.room).emit('userjoined',data.user);
+      io.to(data.room).emit('userjoined', {name: data.user, avatar: data.avatar} );
     }
     else
     {

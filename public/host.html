@@ -6,9 +6,24 @@
     <link rel='stylesheet' href='/bower_components/materialize/dist/css/materialize.css'>
   </head>
   <body>
-    <div class='container'>
+
+    <nav>
+      <div class="nav-wrapper">
+        <span href="#" class="brand-logo center" id='header'>Offline</span>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+          <li><a href="sass.html">New Game</a></li>
+          <li><a href="components.html">High Scores</a></li>
+        </ul>
+      </div>
+    </nav>
+
       <div class='row'>
-        <div class='col s12' id='title'>
+        <div class='col s12 m3 l3'>
+          <ul class="collection" id='side_scoreboard'>
+
+          </ul>
+        </div>
+        <div class='col s12 m8 l9' id='title'>
           <ul id="announcements"></ul>
           <img id='current_drawing' src="" />
         </div>
@@ -18,11 +33,11 @@
           <a id='create_game' class="waves-effect waves-light btn-large"><i class="mdi-content-add left"></i>Create Game</a></i></a>
         </div>
       </div>
-    </div>
 
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script src="/bower_components/materialize/dist/js/materialize.js"></script>
+    <script src="/bower_components/handlebars/handlebars.js"></script>
     <script>
       var socket = io();
 
@@ -30,13 +45,23 @@
         {
           socket.emit('create_game');
         });
+
        socket.on('created', function(msg){
+        $('#header').text('Room ID: '+msg);
         $('#announcements').append($('<li>').text('Room created:'+msg));
         $("#create_game").hide();
       });
-      socket.on('userjoined', function(msg){
-        $('#announcements').append($('<li>').text('User '+msg+' joined the game'));
+
+      socket.on('userjoined', function(data){
+        console.log(data);
+        $('#announcements').append($('<li>').text('User '+ data.name +' joined the game'));
+        $.get("templates/user_sidebar.hbs", function(template_text){
+            var template = Handlebars.compile(template_text);
+            var html = template({username: data.name, score: 0, img: data.avatar});
+            $('#side_scoreboard').append(html);
+        });
       });
+
       socket.on('usrImg', function(data){
         console.log(data);
         $('#announcements').append($('<li>').text('User '+data.user+' drew a pic:'));

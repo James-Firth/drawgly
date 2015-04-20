@@ -18,6 +18,9 @@
 
     <div class="row">
       <form class="col s12" id='initial_form' action="">
+        <div class='row'>
+          <div id="avatar_draw" style='width:100%; height:400px;'></div>
+        </div>
         <div class="row">
           <div class="input-field col s12">
             <i class="mdi-action-account-circle prefix"></i>
@@ -50,19 +53,26 @@
         webStorage: false
       });
 
+      var avatarBoard = new DrawingBoard.Board('avatar_draw', {
+        controls: false,
+        webStorage: false
+      });
+
       var username = "";
       var roomID = "";
 
       $('form').submit(function(){
         username = $('#username').val();
         roomID = $('#room').val();
-        socket.emit('add user', {user: username, room: roomID});
+        avatar_img = avatarBoard.getImg();
+        socket.emit('add user', {user: username, room: roomID, avatar: avatar_img});
         $('#m').val('');
         return false;
       });
 
-     socket.on('userjoined', function(usr){
-        if(usr == $('#username').val())
+     socket.on('userjoined', function(data){
+
+        if(data.name == $('#username').val())
         {
           $('#initial_form').hide();
           $('#messages').append($('<li>').text("Joined Room!"));
