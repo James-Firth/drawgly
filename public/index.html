@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Drawgly</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <meta content="yes" name="mobile-web-app-capable">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    
+    <link rel='stylesheet' href='/bower_components/drawingboard.js/dist/drawingboard.nocontrol.min.css'>
+    <link rel='stylesheet' href='/bower_components/materialize/dist/css/materialize.css'>
+  </head>
+
+  <body>
+    <div id="drawingArea" style='width:100%; height: 80%; display: none;'></div>
+    <button id='sendDrawing' style='position: absolute; bottom: 0px;'>Draw!</button>
+    <ul id="messages"></ul>
+
+    <div class="row">
+      <form class="col s12" id='initial_form' action="">
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="mdi-action-account-circle prefix"></i>
+            <input type="text" class="validate" id="username">
+            <label for="icon_prefix">Display Name</label>
+          </div>
+        </div>
+        <div class='row'>
+          <div class="input-field col s12">
+            <i class="mdi-maps-pin-drop prefix"></i>
+            <input type="text" class="validate" id="room">
+            <label for="room">Room ID</label>
+          </div>
+        </div>
+        <button class="btn waves-effect waves-light" type="submit" name="action">Submit
+          <i class="mdi-content-send right"></i>
+        </button>
+      </form>
+    </div>
+
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="/bower_components/drawingboard.js/dist/drawingboard.nocontrol.min.js"></script>
+    <script src="/bower_components/materialize/dist/js/materialize.js"></script>
+    <script>
+      var socket = io();
+
+      var simpleBoard = new DrawingBoard.Board('drawingArea', {
+        controls: false,
+        webStorage: false
+      });
+
+      var username = "";
+      var roomID = "";
+
+      $('form').submit(function(){
+        username = $('#username').val();
+        roomID = $('#room').val();
+        socket.emit('add user', {user: username, room: roomID});
+        $('#m').val('');
+        return false;
+      });
+
+     socket.on('userjoined', function(usr){
+        if(usr == $('#username').val())
+        {
+          $('#initial_form').hide();
+          $('#messages').append($('<li>').text("Joined Room!"));
+          $('#drawingArea').show();
+        }
+      });
+
+      socket.on('badRoom', function(usr){
+          $('#messages').append($('<li>').text("Bad Room ID!"));
+      });
+
+      $("#sendDrawing").on('click', function(){
+        var img = simpleBoard.getImg();
+        socket.emit('sendImg', {user: username, room: roomID, image: img})
+      });
+
+    </script>
+  </body>
+</html>

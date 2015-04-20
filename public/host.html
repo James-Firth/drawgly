@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    
+    <title>Host!</title>
+    <link rel='stylesheet' href='/bower_components/materialize/dist/css/materialize.css'>
+  </head>
+  <body>
+    <div class='container'>
+      <div class='row'>
+        <div class='col s12' id='title'>
+          <ul id="announcements"></ul>
+          <img id='current_drawing' src="" />
+        </div>
+      </div>
+      <div class='row'>
+        <div class='col s4 offset-s4'>
+          <a id='create_game' class="waves-effect waves-light btn-large"><i class="mdi-content-add left"></i>Create Game</a></i></a>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="/bower_components/materialize/dist/js/materialize.js"></script>
+    <script>
+      var socket = io();
+
+      $("#create_game").on('click', function()
+        {
+          socket.emit('create_game');
+        });
+       socket.on('created', function(msg){
+        $('#announcements').append($('<li>').text('Room created:'+msg));
+        $("#create_game").hide();
+      });
+      socket.on('userjoined', function(msg){
+        $('#announcements').append($('<li>').text('User '+msg+' joined the game'));
+      });
+      socket.on('usrImg', function(data){
+        console.log(data);
+        $('#announcements').append($('<li>').text('User '+data.user+' drew a pic:'));
+        $('#current_drawing').attr('src', data.image);
+      });
+    </script>
+  </body>
+</html>

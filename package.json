@@ -1,0 +1,9 @@
+{
+  "name": "drawgly",
+  "version": "0.0.1",
+  "description": "An Open Source Clone of Drawful",
+  "dependencies": {
+    "express": "~4.12.3",
+    "socket.io": "~1.3.5"
+  }
+}
